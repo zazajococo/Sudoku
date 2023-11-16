@@ -4,24 +4,6 @@
 
 typedef int tGrille[TAILLE][TAILLE];
 
-void chargerGrille(tGrille grille) {
-    // Implémentez la logique de chargement de la grille selon vos besoins
-}
-
-void afficherGrille(tGrille grille) {
-    // Implémentez la logique d'affichage de la grille selon vos besoins
-}
-
-int possible(tGrille grille, int numLigne, int numColonne, int valeur) {
-    // Implémentez la logique pour vérifier si la valeur peut être insérée dans la grille
-    // Retournez 1 si possible, 0 sinon
-}
-
-int grilleEstPleine(tGrille grille) {
-    // Implémentez la logique pour vérifier si la grille est pleine
-    // Retournez 1 si pleine, 0 sinon
-}
-
 int main() {
     tGrille grille1;
     int numLigne, numColonne, valeur;
@@ -49,3 +31,57 @@ int main() {
 
     return 0;
 }
+
+void chargerGrille(tGrille g){
+    char nomFichier[30];
+    FILE * f;
+
+    printf("Nom du fichier ? ");
+    scanf("%s", nomFichier);
+
+    f = fopen(nomFichier, "rb");
+    if (f==NULL)
+    {
+        printf("\n ERREUR sur le fichier %s\n", nomFichier);
+    }
+    else
+    {
+        fread(g, sizeof(int), TAILLE*TAILLE, f);
+    }
+    fclose(f);
+}
+
+void afficherGrille(tGrille grille) {
+    printf("    1 2 3   4 5 6   7 8 9  \n");
+    printf("  +-------+-------+-------+\n");
+
+    for (int i = 0; i < TAILLE; ++i) {
+        if (i % 3 == 0 && i != 0) {
+            printf("  +-------+-------+-------+\n");
+        }
+
+        printf("%d | ", i + 1);
+
+        for (int j = 0; j < TAILLE; ++j) {
+            if (j % 3 == 0 && j != 0) {
+                printf("| ");
+            }
+
+            if (grille[i][j] == 0) {
+                printf(". ");
+            } else {
+                printf("%d ", grille[i][j]);
+            }
+        }
+
+        printf("\n");
+    }
+
+    printf("  +-------+-------+-------+\n");
+}
+
+int possible(tGrille grille, int numLigne, int numColonne, int valeur) // Retournez 1 si possible, 0 sinon
+{}
+
+int grilleEstPleine(tGrille grille) // Retournez 1 si pleine, 0 sinon
+{}
