@@ -9,14 +9,15 @@ typedef int tGrille[TAILLE][TAILLE];
 void chargerGrille(tGrille g);
 void afficherGrille(tGrille grille);
 int possible(tGrille grille, int numLigne, int numColonne, int valeur);
-int grilleEstPleine(tGrille grille);
+int grilleEstPleine(tGrille grille,tGrille grilleDefault);
 
 int main()
 {
-    tGrille grille1;
+    tGrille grille1, grilleDeBase;
     int numLigne, numColonne, valeur;
 
     chargerGrille(grille1);
+    grilleDeBase = grille1;
 
     while (!grilleEstPleine(grille1)) {
         afficherGrille(grille1);
@@ -40,24 +41,24 @@ int main()
     return 0;
 }
 
-void chargerGrille(tGrille g)
+void chargerGrille(tGrille grille)
 {
     char nomFichier[30];
-    FILE * f;
+    FILE * file;
 
     printf("Nom du fichier ? ");
     scanf("%s", nomFichier);
 
-    f = fopen(nomFichier, "rb");
-    if (f==NULL)
+    file = fopen(nomFichier, "rb");
+    if (file==NULL)
     {
         printf("\n ERREUR sur le fichier %s\n", nomFichier);
     }
     else
     {
-        fread(g, sizeof(int), TAILLE*TAILLE, f);
+        fread(grille, sizeof(int), TAILLE*TAILLE, file);
     }
-    fclose(f);
+    fclose(file);
     /*
     liste des grilles:
     Grille1.sud
@@ -102,5 +103,5 @@ void afficherGrille(tGrille grille)
 int possible(tGrille grille, int numLigne, int numColonne, int valeur) // Retourne 1 si possible, 0 sinon
 {}
 
-int grilleEstPleine(tGrille grille) // Retourne 1 si pleine, 0 sinon
+int grilleEstPleine(tGrille grille, tGrille grilleDefault) // Retourne 1 si pleine, 0 sinon
 {}
