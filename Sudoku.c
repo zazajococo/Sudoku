@@ -214,6 +214,7 @@ bool grilleEstPleine(tGrille grille) // Retourne true si pleine, false sinon
 
 void saisir(int *valeur)
 {
+    bool valide = false;
     do
     {
         char chaine[30] = "";
@@ -236,12 +237,12 @@ void saisir(int *valeur)
 
         if (strlen(chaine) <= 30)
         {
-            if (sscanf(chaine, "%d", valeur) == 1)
+            if (sscanf(chaine, "%d", valeur) != 0)
             {
                 // Conversion reussie
                 if (*valeur >= TAILLE_MIN && *valeur <= TAILLE)
                 {
-                    break;
+                    valide = true; // La valeur est correct, on sort de la boucle
                 }
                 else
                 {
@@ -257,7 +258,7 @@ void saisir(int *valeur)
         {
             erreurs(ENTREE_TROP_LONGUE);
         }
-    } while (true);
+    } while (!valide);
 }
 
 void erreurs(int id)
