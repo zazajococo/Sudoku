@@ -6,32 +6,31 @@
 
 typedef int tGrille[TAILLE][TAILLE];
 
-void chargerGrille(tGrille g);
+void chargerGrille(tGrille grille1, tGrille grille2);
 void afficherGrille(tGrille grille);
 int possible(tGrille grille, int numLigne, int numColonne, int valeur);
 int grilleEstPleine(tGrille grille,tGrille grilleDefault);
 
 int main()
 {
-    tGrille grille1, grilleDeBase;
+    tGrille grille, grilleDeBase;
     int numLigne, numColonne, valeur;
 
-    chargerGrille(grille1);
-    grilleDeBase = grille1;
+    chargerGrille(grille, grilleDeBase);
 
-    while (!grilleEstPleine(grille1)) {
-        afficherGrille(grille1);
+    while (!grilleEstPleine(grille, grilleDeBase)) {
+        afficherGrille(grille);
         printf("Indices de la case ? ");
         scanf("%d %d", &numLigne, &numColonne);
 
-        if (grille1[numLigne][numColonne] != 0) {
+        if (grille[numLigne][numColonne] != 0) {
             printf("IMPOSSIBLE, la case n'est pas libre.\n");
         } else {
             printf("Valeur a inserer ? ");
             scanf("%d", &valeur);
 
-            if (possible(grille1, numLigne, numColonne, valeur)) {
-                grille1[numLigne][numColonne] = valeur;
+            if (possible(grille, numLigne, numColonne, valeur)) {
+                grille[numLigne][numColonne] = valeur;
             }
         }
     }
@@ -41,7 +40,7 @@ int main()
     return 0;
 }
 
-void chargerGrille(tGrille grille)
+void chargerGrille(tGrille grille1, tGrille grille2)
 {
     char nomFichier[30];
     FILE * file;
@@ -56,7 +55,8 @@ void chargerGrille(tGrille grille)
     }
     else
     {
-        fread(grille, sizeof(int), TAILLE*TAILLE, file);
+        fread(grille1, sizeof(int), TAILLE*TAILLE, file);
+        fread(grille2, sizeof(int), TAILLE*TAILLE, file);        
     }
     fclose(file);
     /*
