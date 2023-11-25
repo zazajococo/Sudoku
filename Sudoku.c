@@ -190,6 +190,7 @@ bool possible(tGrille grille, int numLigne, int numColonne, int valeur, tGrille 
     if (grilleDefault[numLigne][numColonne] != 0)
     {
         erreurs(CASE_DE_BASE);
+        return false;
     }
     
 
@@ -238,9 +239,12 @@ void saisir(int *valeur)
             if (sscanf(chaine, "%d", valeur) == 1)
             {
                 // Conversion reussie
-                if (*valeur >= TAILLE_MIN && *valeur <= TAILLE) {
+                if (*valeur >= TAILLE_MIN && *valeur <= TAILLE)
+                {
                     break;
-                } else {
+                }
+                else
+                {
                     erreurs(SAISIR_DANS_BORNES);
                 }
             }
