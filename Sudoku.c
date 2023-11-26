@@ -1,18 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include <stdbool.h>
+#include<unistd.h>
 
-// Codes pour avoir du text de couleur :)
+// Pour que ce sois jolie/propre
+// {
+// Codes pour avoir de la couleur
 #define RED "\033[0;31m"
 #define BLUE "\033[34m"
 #define GREEN  "\033[32m"
 #define CYAN "\033[36m"
 #define RESET "\033[0m"
-
-
-#define TAILLE 9
 
 // Codes pour les possibles erreurs (code = nom abrege en 3 lettres sous fromat ascii)
 #define VALEUR_EXISTE_LIGNE 76105103
@@ -23,63 +22,92 @@
 #define CASE_DE_BASE 67115101
 #define ENTREE_TROP_LONGUE 76110103
 
-typedef int tGrille[TAILLE][TAILLE];
+// }
+
+#define TAILLE 3
+#define BLOC TAILLE*TAILLE
+typedef int tGrille[BLOC][BLOC];
 
 const int TAILLE_MIN = 1;
 
+// Initialisation des prototypes
 void chargerGrille(tGrille grille);
-void copieGrille(tGrille grilleDeBase, tGrille grille);
+void copieGrille(tGrille grilleDeBase, tGrille grille); // Juste pour copier la grille de base dans une grille modifiable
 void afficherGrille(tGrille grille, tGrille grilleDeBase);
-bool possible(tGrille grille, int numLigne, int numColonne, int valeur, tGrille grilleDefault);
-bool grilleEstPleine(tGrille grille);
 void saisir(int *valeur);
 
+bool possible(tGrille grille, int numLigne, int numColonne, int valeur, tGrille grilleDefault);
+bool grilleEstPleine(tGrille grille);
+
 void erreurs(int id);
+void chargement();
+
+
 
 int main()
 {
-    tGrille grille, grilleDeBase;
-    int numLigne, numColonne, valeur;
-    
-    chargerGrille(grilleDeBase);
-    copieGrille(grilleDeBase, grille);
-    
+    char rejouer;
 
-    while (!grilleEstPleine(grille))
+    do
     {
-        printf("\n");
-        afficherGrille(grille, grilleDeBase);
-        
-        printf("Indice de " CYAN "ligne" RESET ": ");
-        saisir(&numLigne);
-        numLigne--;
+        // initialisation
+        tGrille grille, grilleDeBase;
+        int numLigne, numColonne, valeur;
 
-        printf("Indice de " CYAN "colonne" RESET ": ");
-        saisir(&numColonne);
-        numColonne--;
-        
-        printf(CYAN "Valeur" RESET " a mettre en " CYAN "(%d, %d): " RESET, numLigne+1, numColonne+1);
-        saisir(&valeur);
+        chargerGrille(grilleDeBase);
+        copieGrille(grilleDeBase, grille);
+        printf("Initialisation");
+        chargement();
 
-        printf("\033[2J\033[1;1H"); // Vide le terminal
-        
-        if (possible(grille, numLigne, numColonne, valeur, grilleDeBase))
+        // tant que la grille n'est pas finie
+        while (!grilleEstPleine(grille))
         {
-            grille[numLigne][numColonne] = valeur;
-        }
-    }
-    printf("Grille pleine, fin de partie\n");
+            afficherGrille(grille, grilleDeBase);
 
-    return 0;
+            printf("Indice de " CYAN "ligne" RESET ": ");
+            saisir(&numLigne); // Il y a une erreur ici car le programme renvoi une erreur pour aucune raison et je ne sais pas comment fixer 
+            numLigne--; // Passe de [1-9] à [0-8], borne de la grille
+
+            printf("Indice de " CYAN "colonne" RESET ": ");
+            saisir(&numColonne);
+            numColonne--; // Passe de [1-9] à [0-8], borne de la grille
+
+            printf(CYAN "Valeur" RESET " à mettre en " CYAN "(%d, %d): " RESET, numLigne + 1, numColonne + 1);
+            saisir(&valeur);
+
+            printf("\033[2J\033[1;1H"); // Vide le terminal
+
+            if (possible(grille, numLigne, numColonne, valeur, grilleDeBase))
+            {
+                // Si la valeur n'est pas out of range ou deja presente
+                grille[numLigne][numColonne] = valeur; // alors elle est ajoutee à la grille
+            }
+        }
+        printf("Grille pleine, fin de partie\n");
+
+        // Demander à l'utilisateur s'il veut rejouer
+        printf("Voulez-vous rejouer ? (O/N): ");
+        scanf(" %c", &rejouer);
+        if (rejouer == 'O' || rejouer == 'o')
+        {
+            printf("Reinitialisation");
+            chargement();
+        }
+
+    } while (rejouer == 'O' || rejouer == 'o');
+
+    return EXIT_SUCCESS;
 }
+
+
 
 void chargerGrille(tGrille grille)
 {
-    char nomFichier[30] = "Grilles/Grille1.sud";
+    char nomFichier[30];
     FILE * file;
 
-    printf("Nom du fichier ? \n");
-    //scanf("%s", nomFichier);
+    printf("Nom du fichier ? ");
+    scanf("%s", nomFichier);
 
     file = fopen(nomFichier, "rb");
     if (file==NULL)
@@ -88,7 +116,7 @@ void chargerGrille(tGrille grille)
     }
     else
     {
-        fread(grille, sizeof(int), TAILLE*TAILLE, file);       
+        fread(grille, sizeof(int), BLOC*BLOC, file);       
     }
     fclose(file);
     /*
@@ -99,11 +127,11 @@ void chargerGrille(tGrille grille)
     */
 }
 
-void copieGrille(tGrille grilleDeBase, tGrille grille)
+void copieGrille(tGrille grilleDeBase, tGrille grille) // Copie la grille de base en une grille modifiable
 {
-    for (int ligne = 0; ligne < TAILLE; ligne++)
+    for (int ligne = 0; ligne < BLOC; ligne++)
     {
-        for (int colonne = 0; colonne < TAILLE; colonne++)
+        for (int colonne = 0; colonne < BLOC; colonne++)
         {
             grille[ligne][colonne] = grilleDeBase[ligne][colonne];
         }
@@ -112,22 +140,22 @@ void copieGrille(tGrille grilleDeBase, tGrille grille)
 
 void afficherGrille(tGrille grille, tGrille grilleDeBase)
 {
-    printf(GREEN "    1 2 3   4 5 6   7 8 9  \n" RESET);
+    printf(GREEN "    1 2 3   4 5 6   7 8 9  \n" RESET); // Affichage des chiffres en haut (pour choisir la colonne)
     printf("  +-------+-------+-------+\n");
 
-    for (int ligne = 0; ligne < TAILLE; ligne++)
+    for (int ligne = 0; ligne < BLOC; ligne++)
     {
         if (ligne % 3 == 0 && ligne != 0) {
-            printf("  +-------+-------+-------+\n"); // Affichage d'une ligne de separation pour les carres de 3x3
+            printf("  +-------+-------+-------+\n"); // Affichage d'une ligne de separation pour les blocs de 3x3
         }
 
         printf(GREEN "%d" RESET " | ", ligne + 1); // Affichage des chiffres a droite (pour choisir la ligne)
 
-        for (int colonne = 0; colonne < TAILLE; colonne++)
+        for (int colonne = 0; colonne < BLOC; colonne++)
         {
             if (colonne % 3 == 0 && colonne != 0)
             {
-                printf("| "); // Affichage d'une colonne de separation pour les carres de 3x3
+                printf("| "); // Affichage d'une colonne de separation pour les blocs de 3x3
             }
 
             if (grille[ligne][colonne] == 0)
@@ -136,11 +164,11 @@ void afficherGrille(tGrille grille, tGrille grilleDeBase)
             }
             else if (grille[ligne][colonne] == grilleDeBase[ligne][colonne])
             {
-                printf(RED "%d " RESET, grille[ligne][colonne]); // La valeur sinon si case de base en rouge
+                printf(RED "%d " RESET, grille[ligne][colonne]); // La valeur sinon, si case de base en rouge
             }
             else
             {
-                printf(BLUE "%d " RESET, grille[ligne][colonne]); // En bleu sinon
+                printf(BLUE "%d " RESET, grille[ligne][colonne]); // Bleu sinon
             }
         }
         printf("|\n");
@@ -151,7 +179,7 @@ void afficherGrille(tGrille grille, tGrille grilleDeBase)
 bool possible(tGrille grille, int numLigne, int numColonne, int valeur, tGrille grilleDefault) // Retourne true si l'entree de la valeur est possible, false sinon
 {
     // Verifie la ligne
-    for (int colonne = 0; colonne < TAILLE; colonne++)
+    for (int colonne = 0; colonne < BLOC; colonne++)
     {
         if (grille[numLigne][colonne] == valeur)
         {
@@ -161,7 +189,7 @@ bool possible(tGrille grille, int numLigne, int numColonne, int valeur, tGrille 
     }
 
     // Verifie la colonne
-    for (int ligne = 0; ligne < TAILLE; ligne++)
+    for (int ligne = 0; ligne < BLOC; ligne++)
     {
         if (grille[ligne][numColonne] == valeur)
         {
@@ -171,14 +199,14 @@ bool possible(tGrille grille, int numLigne, int numColonne, int valeur, tGrille 
     }
 
     // Verifie le bloc 3x3
-    int debutBlocLigne = (numLigne / 3) * 3;
-    int debutBlocColonne = (numColonne / 3) * 3;
+    int debutBlocLigne = (numLigne / 3) * 3; // val = [0,1,2], x3 = [0, 3, 6]
+    int debutBlocColonne = (numColonne / 3) * 3; // Donc prends l'input est quelque soit la valeur la transforme en [0,3,6], permettant de savoir son bloc
 
-    for (int ligne = debutBlocLigne; ligne < debutBlocLigne + 3; ++ligne)
+    for (int ligne = debutBlocLigne; ligne < debutBlocLigne + 3; ++ligne) // Le +3 est pour avoir la fin du bloc
     {
         for (int colonne = debutBlocColonne; colonne < debutBlocColonne + 3; ++colonne)
         {
-            if (grille[ligne][colonne] == valeur) 
+            if (grille[ligne][colonne] == valeur) // Puis verifie si la valeur existe
             {
                 erreurs(VALEUR_EXISTE_BLOC);
                 return false;
@@ -199,9 +227,9 @@ bool possible(tGrille grille, int numLigne, int numColonne, int valeur, tGrille 
 
 bool grilleEstPleine(tGrille grille) // Retourne true si pleine, false sinon
 {
-    for (int ligne = 0; ligne < TAILLE; ++ligne)
+    for (int ligne = 0; ligne < BLOC; ++ligne)
     {
-        for (int colonne = 0; colonne < TAILLE; colonne++)
+        for (int colonne = 0; colonne < BLOC; colonne++)
         {
             if (grille[ligne][colonne] == 0) // Si il reste au moins une case vide
             {
@@ -214,14 +242,16 @@ bool grilleEstPleine(tGrille grille) // Retourne true si pleine, false sinon
 
 void saisir(int *valeur)
 {
-    bool valide = false;
+    bool valide = false; // Condition
+
     do
     {
         char chaine[30] = "";
 
-        fgets(chaine, sizeof(chaine), stdin);
+        fgets(chaine, sizeof(chaine), stdin); // Lit l'entree
+        fflush(stdin);  // Vide le buffer d'entrée
 
-        // Enleve le caractere de retour a la ligne
+        // Enleve le caractere `retour a la ligne` de l'entree si present
         int longueur = strlen(chaine);
         if (longueur > 0 && chaine[longueur-1] == '\n')
         {
@@ -229,18 +259,17 @@ void saisir(int *valeur)
         }
         else // si l'entree est trop longue
         {
-            
             erreurs(ENTREE_TROP_LONGUE);
-            while (getchar() != '\n');  // Vide le buffer de l'input
+            while (getchar() != '\n');  // Vide le buffer d'entree
             continue; // Pour que le message d'erreur ne se repete pas
         }
 
-        if (strlen(chaine) <= 30)
+        if (strlen(chaine) <= 30) // Si l'entree n'est pas trop longue
         {
             if (sscanf(chaine, "%d", valeur) != 0)
             {
                 // Conversion reussie
-                if (*valeur >= TAILLE_MIN && *valeur <= TAILLE)
+                if (*valeur >= TAILLE_MIN && *valeur <= BLOC)
                 {
                     valide = true; // La valeur est correct, on sort de la boucle
                 }
@@ -254,7 +283,7 @@ void saisir(int *valeur)
                 erreurs(SAISIR_ENTIER);
             }
         }
-        else
+        else // Car mieux vaut etre sur :)
         {
             erreurs(ENTREE_TROP_LONGUE);
         }
@@ -296,4 +325,15 @@ void erreurs(int id)
     default:
         break;
     }
+}
+
+void chargement() // Qnimation pour la deco
+{
+    for (int _ = 0; _ < 3; _++)
+    {
+        fflush(stdout);
+        sleep(1);
+        printf(".");
+    }
+    printf("\n");
 }
