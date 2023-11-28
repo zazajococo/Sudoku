@@ -1,3 +1,8 @@
+/**
+*Le fichier source est le programme complet
+*d'un jeu de SUDOKU
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,14 +12,14 @@
 // Pour que ce sois jolie/propre
 // {
 // Codes pour avoir de la couleur
-#define RED "\033[0;31m"
-#define BLUE "\033[34m"
-#define GREEN  "\033[32m"
-#define CYAN "\033[36m"
-#define RESET "\033[0m"
+#define RED "\033[0;31m" /** Code ANSI pour la couleur rouge */
+#define BLUE "\033[34m" /** Code ANSI pour la couleur bleu */
+#define GREEN  "\033[32m" /** Code ANSI pour la couleur vert */
+#define CYAN "\033[36m" /** Code ANSI pour la couleur bleu ciel */
+#define RESET "\033[0m" /** Code ANSI pour enelver la couleur ANSI */
 
 // Codes pour les possibles erreurs (code = nom abrege en 3 lettres sous fromat ascii)
-#define VALEUR_EXISTE_LIGNE 76105103
+#define VALEUR_EXISTE_LIGNE 76105103 
 #define VALEUR_EXISTE_COLONNE 67111108
 #define VALEUR_EXISTE_BLOC 6610899
 #define SAISIR_ENTIER 69110116
